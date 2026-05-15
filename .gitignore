@@ -1,0 +1,6 @@
+.env
+venv/
+__pycache__/
+*.pyc
+video.mp4
+ngrok.exe
