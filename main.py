@@ -64,3 +64,9 @@ def privacy():
 @app.get("/terms")
 def terms():
     return {"terms": "By using this app you agree to TikTok's Terms of Service. This app is used solely for uploading videos to TikTok."}
+
+from fastapi.responses import PlainTextResponse
+
+@app.get("/terms/tiktoknR7acLM2jnWywhCPXhOcnPNqWyMjCVkk.txt")
+def tiktok_verify():
+    return PlainTextResponse("tiktok-developers-site-verification=nR7acLM2jnWywhCPXhOcnPNqWyMjCVkk")
