@@ -5,7 +5,7 @@ import base64
 import requests
 from urllib.parse import quote  # добавили это
 from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, PlainTextResponse, HTMLResponse
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -21,10 +21,18 @@ code_challenge = base64.urlsafe_b64encode(
     hashlib.sha256(code_verifier.encode()).digest()
 ).rstrip(b"=").decode()
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def home():
-    return {"message": "TikTok App работает!"}
-
+    return """
+    <html>
+        <head><title>TikTok App</title></head>
+        <body style="font-family: Arial; text-align: center; padding: 50px;">
+            <h1>TikTok Video Uploader</h1>
+            <p>Upload videos to TikTok using our app</p>
+            <a href="/login" style="background-color: #000000; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-size: 18px;">Login with TikTok</a>
+        </body>
+    </html>
+    """
 @app.get("/login")
 def login():
     state = secrets.token_hex(16)
