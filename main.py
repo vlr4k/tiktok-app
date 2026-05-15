@@ -56,3 +56,11 @@ def callback(code: str, state: str):
     )
     token_data = response.json()
     return token_data  
+
+@app.get("/privacy")
+def privacy():
+    return {"privacy_policy": "This app collects TikTok OAuth tokens to upload videos on behalf of the user. We do not store or share your data."}
+
+@app.get("/terms")
+def terms():
+    return {"terms": "By using this app you agree to TikTok's Terms of Service. This app is used solely for uploading videos to TikTok."}
