@@ -76,8 +76,6 @@ def tiktok_verify(filename: str):
 
 @app.get("/privacy/{filename}")
 def tiktok_verify_privacy(filename: str):
-    if filename == "tiktoknR7acLM2jnWywhCPXhOcnPNqWyMjCVkk.txt":
-        return PlainTextResponse("tiktok-developers-site-verification=nR7acLM2jnWywhCPXhOcnPNqWyMjCVkk")
-    if filename == "tiktokndddvj5kJujUzUnaDntntoQfkFRSYyPMG.txt":
+    if filename == "tiktokdddvj5kJujUzUnaDntntoQfkFRSYyPMG.txt":
         return PlainTextResponse("tiktok-developers-site-verification=dddvj5kJujUzUnaDntntoQfkFRSYyPMG")
     return PlainTextResponse("Not Found", status_code=404)
