@@ -38,64 +38,6 @@ class LoginData(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
-<!DOCTYPE html>
-<html>
-<head>
-    <title>TZ Post</title>
-    <meta charset="utf-8">
-    <style>
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#111113;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh}
-        .card{background:#141416;border:0.5px solid #222;border-radius:12px;padding:32px;width:360px}
-        .logo{font-size:22px;font-weight:700;color:#fff;text-align:center;margin-bottom:24px}
-        .field{margin-bottom:14px}
-        label{font-size:11px;color:#666;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
-        input{width:100%;background:#0e0e10;border:0.5px solid #2a2a2e;border-radius:8px;padding:10px 12px;font-size:13px;color:#ddd;outline:none;font-family:Arial}
-        input:focus{border-color:#7c7cff}
-        .btn{width:100%;background:#7c7cff;color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px}
-        .btn:hover{opacity:0.9}
-        .error{color:#ff4455;font-size:12px;margin-top:10px;text-align:center;display:none}
-        .divider{display:flex;align-items:center;gap:10px;margin:16px 0}
-        .div-line{flex:1;height:0.5px;background:#1e1e22}
-        .div-text{font-size:11px;color:#333}
-        .tg-btn{width:100%;background:#0e0e10;color:#5aabff;border:0.5px solid #1e3a5a;border-radius:8px;padding:10px;font-size:12px;cursor:pointer}
-        .tg-btn:hover{border-color:#5aabff}
-    </style>
-</head>
-<body>
-    <div class="card">
-        <div class="logo">TZ Post</div>
-        <div class="field">
-            <label>Login</label>
-            <input type="text" id="login" placeholder="your_login">
-        </div>
-        <div class="field">
-            <label>Password</label>
-            <input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-        </div>
-        <button class="btn" onclick="doLogin()">Sign in</button>
-        <div class="error" id="error">Wrong login or password</div>
-        <div class="divider"><div class="div-line"></div><div class="div-text">or</div><div class="div-line"></div></div>
-        <button class="tg-btn" onclick="window.location='/subscribe'">Get subscription in Telegram →</button>
-    </div>
-    <script>
-        if(localStorage.getItem('token')) window.location='/dashboard';
-        async function doLogin(){
-            const login=document.getElementById('login').value;
-            const password=document.getElementById('password').value;
-            const res=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login,password})});
-            const data=await res.json();
-            if(res.ok){
-                localStorage.setItem('token', data.access_token);
-                window.location='/dashboard';
-            } else {
-                document.getElementById('error').style.display='block';
-            }
-        }
-    </script>
-</body>
-</html>
-"""
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard():
