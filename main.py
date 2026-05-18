@@ -97,3 +97,37 @@ def tiktok_verify_root(filename: str):
     if filename == "tiktokT1AhM3o4jpObfsp9fVqEQj0OTJFQ47AV.txt":
         return PlainTextResponse("tiktok-developers-site-verification=T1AhM3o4jpObfsp9fVqEQj0OTJFQ47AV")
     return PlainTextResponse("Not Found", status_code=404)
+
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+from database import get_db
+from models import User
+from auth import hash_password, verify_password, create_token, get_current_user
+from pydantic import BaseModel
+
+class LoginData(BaseModel):
+    login: str
+    password: str
+
+@app.post("/login")
+def login(data: LoginData, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.login == data.login).first()
+    if not user or not verify_password(data.password, user.password):
+        raise HTTPException(status_code=401, detail="Wrong login or password")
+    token = create_token({"sub": str(user.id)})
+    return {"access_token": token, "token_type": "bearer"}
+
+@app.post("/admin/create-user")
+def create_user(data: LoginData, db: Session = Depends(get_db)):
+    existing = db.query(User).filter(User.login == data.login).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="User already exists")
+    user = User(login=data.login, password=hash_password(data.password))
+    db.add(user)
+    db.commit()
+    return {"message": f"User {data.login} created"}
+
+@app.get("/me")
+def me(current_user: User = Depends(get_current_user)):
+    return {"id": current_user.id, "login": current_user.login, "plan": current_user.plan}
