@@ -1,27 +1,160 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TZ Post — Dashboard</title>
+    <title>TZ Post</title>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body{background:#111113;color:#ccc;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px}
-        h1{color:#fff;font-size:20px}
-        .btn{background:#7c7cff;color:#fff;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:13px}
-        .info{background:#141416;border:0.5px solid #222;border-radius:8px;padding:16px;font-size:13px;min-width:300px;line-height:2}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#0e0e10;font-family:Arial,sans-serif;color:#e8e6e0;display:flex;height:100vh;overflow:hidden}
+        .sidebar{width:220px;background:#141416;border-right:0.5px solid #2a2a2e;padding:20px 0;display:flex;flex-direction:column;flex-shrink:0}
+        .logo{padding:0 20px 20px;border-bottom:0.5px solid #2a2a2e;margin-bottom:16px;font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+        .nav-section{padding:0 12px;margin-bottom:8px}
+        .nav-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:6px}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:13px;color:#888;cursor:pointer;margin-bottom:2px;text-decoration:none}
+        .nav-item:hover{background:#1e1e22;color:#ccc}
+        .nav-item.active{background:#1c1c3a;color:#7c7cff}
+        .sidebar-bottom{margin-top:auto;padding:16px 12px 0;border-top:0.5px solid #2a2a2e}
+        .user-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer}
+        .user-row:hover{background:#1e1e22}
+        .user-avatar{width:28px;height:28px;border-radius:50%;background:#1c1c3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#7c7cff}
+        .user-name{font-size:12px;color:#aaa}
+        .user-plan{font-size:10px;color:#555}
+        .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:0.5px solid #1e1e22}
+        .page-title{font-size:16px;font-weight:600;color:#fff}
+        .page-sub{font-size:12px;color:#555;margin-top:2px}
+        .upload-btn{display:flex;align-items:center;gap:6px;background:#7c7cff;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
+        .content{flex:1;padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+        .two-col{display:grid;grid-template-columns:1fr 280px;gap:16px}
+        .card{background:#141416;border:0.5px solid #222226;border-radius:10px;padding:16px}
+        .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+        .card-title{font-size:13px;font-weight:600;color:#ccc}
+        .card-action{font-size:11px;color:#7c7cff;cursor:pointer;text-decoration:none}
+        .video-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:0.5px solid #1a1a1e}
+        .video-row:last-child{border-bottom:none}
+        .video-thumb{width:36px;height:36px;border-radius:6px;background:#1e1e2e;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+        .video-info{flex:1;min-width:0}
+        .video-name{font-size:12px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .video-account{font-size:11px;color:#555;margin-top:2px}
+        .video-status{font-size:10px;padding:3px 8px;border-radius:10px;font-weight:500;flex-shrink:0}
+        .s-scheduled{background:#1a1a3a;color:#7c7cff}
+        .s-posted{background:#0d2b1e;color:#4caf82}
+        .s-draft{background:#222;color:#888}
+        .video-views{font-size:11px;color:#666;min-width:40px;text-align:right}
+        .acc-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #1a1a1e}
+        .acc-item:last-child{border-bottom:none}
+        .acc-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+        .av1{background:#1c1c3a;color:#7c7cff}
+        .av2{background:#0d2b1e;color:#4caf82}
+        .av3{background:#2b1a0d;color:#e8944a}
+        .acc-name{font-size:12px;color:#ccc;flex:1}
+        .acc-followers{font-size:11px;color:#555}
+        .acc-dot{width:6px;height:6px;border-radius:50%;background:#4caf82}
+        .logout-btn{background:none;border:0.5px solid #2a2a2e;color:#666;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer}
+        .logout-btn:hover{border-color:#ff4455;color:#ff4455}
     </style>
 </head>
 <body>
-    <h1>TZ Post Dashboard</h1>
-    <div class="info" id="user-info">Loading...</div>
-    <button class="btn" onclick="logout()">Logout</button>
+    <div class="sidebar">
+        <div class="logo">TZ Post</div>
+        <div class="nav-section">
+            <div class="nav-label">Main</div>
+            <a class="nav-item active" href="/dashboard">⬛ Dashboard</a>
+            <a class="nav-item" href="/schedule">📅 Schedule</a>
+            <a class="nav-item" href="/upload">⬆️ Upload</a>
+            <a class="nav-item" href="/analytics">📊 Analytics</a>
+            <div class="nav-label" style="margin-top:8px">Account</div>
+            <a class="nav-item" href="/accounts">🎵 TikTok Accounts</a>
+        </div>
+        <div class="sidebar-bottom">
+            <div class="user-row">
+                <div class="user-avatar" id="user-initials">?</div>
+                <div>
+                    <div class="user-name" id="user-login">Loading...</div>
+                    <div class="user-plan" id="user-plan">...</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div>
+                <div class="page-title">Dashboard</div>
+                <div class="page-sub" id="welcome-text">Welcome back</div>
+            </div>
+            <button class="upload-btn" onclick="window.location='/upload'">+ Upload Video</button>
+        </div>
+        <div class="content">
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Video queue</div>
+                        <a class="card-action" href="/schedule">See all →</a>
+                    </div>
+                    <div class="video-row">
+                        <div class="video-thumb">🎬</div>
+                        <div class="video-info"><div class="video-name">Morning routine vlog #12</div><div class="video-account">@myaccount1</div></div>
+                        <div class="video-status s-scheduled">Scheduled</div>
+                        <div class="video-views">—</div>
+                    </div>
+                    <div class="video-row">
+                        <div class="video-thumb">🎬</div>
+                        <div class="video-info"><div class="video-name">Product review unboxing</div><div class="video-account">@brand_account</div></div>
+                        <div class="video-status s-posted">Posted</div>
+                        <div class="video-views">14.2K</div>
+                    </div>
+                    <div class="video-row">
+                        <div class="video-thumb">🎬</div>
+                        <div class="video-info"><div class="video-name">Travel highlights summer</div><div class="video-account">@travel_vlogs</div></div>
+                        <div class="video-status s-posted">Posted</div>
+                        <div class="video-views">9.8K</div>
+                    </div>
+                    <div class="video-row">
+                        <div class="video-thumb">🎬</div>
+                        <div class="video-info"><div class="video-name">Behind the scenes edit</div><div class="video-account">@myaccount1</div></div>
+                        <div class="video-status s-draft">Draft</div>
+                        <div class="video-views">—</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">TikTok accounts</div>
+                        <a class="card-action" href="/accounts">+ Add</a>
+                    </div>
+                    <div class="acc-item">
+                        <div class="acc-avatar av1">M1</div>
+                        <div><div class="acc-name">@myaccount1</div><div class="acc-followers">128K followers</div></div>
+                        <div class="acc-dot"></div>
+                    </div>
+                    <div class="acc-item">
+                        <div class="acc-avatar av2">BR</div>
+                        <div><div class="acc-name">@brand_acc</div><div class="acc-followers">45K followers</div></div>
+                        <div class="acc-dot"></div>
+                    </div>
+                    <div class="acc-item">
+                        <div class="acc-avatar av3">TV</div>
+                        <div><div class="acc-name">@travel_vlogs</div><div class="acc-followers">89K followers</div></div>
+                        <div class="acc-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const token=localStorage.getItem('token');
-        if(!token) window.location='/';
-        fetch('/me',{headers:{'Authorization':'Bearer '+token}})
-            .then(r=>r.json())
-            .then(d=>{
+        const token = localStorage.getItem('token');
+        if(!token) window.location = '/';
+        fetch('/me', {headers: {'Authorization': 'Bearer ' + token}})
+            .then(r => r.json())
+            .then(d => {
                 if(d.detail){localStorage.removeItem('token');window.location='/';}
-                document.getElementById('user-info').innerHTML='Login: '+d.login+'<br>Plan: '+d.plan;
+                document.getElementById('user-login').textContent = d.login;
+                document.getElementById('user-plan').textContent = d.plan + ' plan';
+                document.getElementById('user-initials').textContent = d.login.slice(0,2).toUpperCase();
+                document.getElementById('welcome-text').textContent = 'Welcome back, ' + d.login;
             });
         function logout(){localStorage.removeItem('token');window.location='/';}
     </script>
