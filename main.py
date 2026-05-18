@@ -3,12 +3,16 @@ import secrets
 import hashlib
 import base64
 import requests
-from urllib.parse import quote  # добавили это
+from urllib.parse import quote
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse, PlainTextResponse, HTMLResponse
 from dotenv import load_dotenv
+from database import Base, engine
+from models import User, TikTokAccount, Video
 
 load_dotenv()
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
