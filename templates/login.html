@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TZ Post</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#111113;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh}
+        .card{background:#141416;border:0.5px solid #222226;border-radius:12px;padding:32px;width:100%;max-width:380px}
+        .logo{font-size:22px;font-weight:700;color:#fff;text-align:center;letter-spacing:-0.5px;margin-bottom:24px}
+        .form-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:4px}
+        .form-sub{font-size:12px;color:#555;margin-bottom:20px}
+        .field{margin-bottom:14px}
+        label{font-size:11px;color:#666;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
+        input{width:100%;background:#0e0e10;border:0.5px solid #2a2a2e;border-radius:8px;padding:10px 12px;font-size:13px;color:#ddd;outline:none;font-family:Arial;transition:border-color 0.15s}
+        input:focus{border-color:#7c7cff}
+        input::placeholder{color:#333}
+        .btn{width:100%;background:#7c7cff;color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s}
+        .btn:hover{opacity:0.9}
+        .error{color:#ff4455;font-size:12px;margin-top:10px;text-align:center;display:none}
+        .divider{display:flex;align-items:center;gap:10px;margin:16px 0}
+        .div-line{flex:1;height:0.5px;background:#1e1e22}
+        .div-text{font-size:11px;color:#333}
+        .tg-btn{width:100%;background:#0e0e10;color:#5aabff;border:0.5px solid #1e3a5a;border-radius:8px;padding:10px;font-size:12px;cursor:pointer;transition:border-color 0.15s}
+        .tg-btn:hover{border-color:#5aabff}
+        .sub-form{display:none;margin-top:16px}
+        .sub-form.on{display:block}
+        .back-btn{background:none;border:none;color:#555;font-size:12px;cursor:pointer;margin-bottom:14px;padding:0;display:flex;align-items:center;gap:4px}
+        .back-btn:hover{color:#aaa}
+        .acc-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px}
+        .acc-opt{background:#0e0e10;border:0.5px solid #2a2a2e;border-radius:7px;padding:8px 4px;text-align:center;font-size:12px;color:#666;cursor:pointer;transition:all 0.15s}
+        .acc-opt.on{background:#1a1a3a;border-color:#7c7cff;color:#7c7cff;font-weight:600}
+        .success{text-align:center;padding:16px 0;display:none}
+        .success.on{display:block}
+        .success-icon{font-size:36px;color:#4caf82;margin-bottom:10px}
+        .success-t{font-size:14px;font-weight:600;color:#fff;margin-bottom:6px}
+        .success-s{font-size:12px;color:#555}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">TZ Post</div>
+
+        <div id="view-login">
+            <div class="form-title">Welcome back</div>
+            <div class="form-sub">Sign in to your account</div>
+            <div class="field">
+                <label>Login</label>
+                <input type="text" id="login-inp" placeholder="your_login">
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" id="pass-inp" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+            </div>
+            <button class="btn" onclick="doLogin()">Sign in</button>
+            <div class="error" id="login-error">Wrong login or password</div>
+            <div class="divider"><div class="div-line"></div><div class="div-text">or</div><div class="div-line"></div></div>
+            <button class="tg-btn" onclick="showSub()">Get subscription in Telegram →</button>
+        </div>
+
+        <div id="view-sub" style="display:none">
+            <button class="back-btn" onclick="showLogin()">← Back</button>
+            <div class="form-title">Get subscription</div>
+            <div class="form-sub">Fill in the form and we'll contact you</div>
+            <div class="field">
+                <label>Telegram username</label>
+                <input type="text" id="sub-tg" placeholder="@username">
+            </div>
+            <div class="field">
+                <label>Name</label>
+                <input type="text" id="sub-name" placeholder="Your name">
+            </div>
+            <div class="field">
+                <label>Number of accounts for posting</label>
+                <div class="acc-opts">
+                    <div class="acc-opt on" onclick="selAcc(this)">1–5</div>
+                    <div class="acc-opt" onclick="selAcc(this)">5–10</div>
+                    <div class="acc-opt" onclick="selAcc(this)">10–20</div>
+                    <div class="acc-opt" onclick="selAcc(this)">20+</div>
+                </div>
+            </div>
+            <div class="field">
+                <label>When to contact you</label>
+                <input type="datetime-local" id="sub-dt">
+            </div>
+            <button class="btn" onclick="submitSub()">Send →</button>
+        </div>
+
+        <div id="view-success" style="display:none">
+            <div class="success on">
+                <div class="success-icon">✓</div>
+                <div class="success-t">Request sent!</div>
+                <div class="success-s">We'll write to you in Telegram at the chosen time.</div>
+            </div>
+            <button class="btn" onclick="showLogin()" style="margin-top:16px">Back to login</button>
+        </div>
+    </div>
+
+    <script>
+        if(localStorage.getItem('token')) window.location='/dashboard';
+
+        async function doLogin(){
+            const login=document.getElementById('login-inp').value;
+            const password=document.getElementById('pass-inp').value;
+            const res=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login,password})});
+            const data=await res.json();
+            if(res.ok){
+                localStorage.setItem('token', data.access_token);
+                window.location='/dashboard';
+            } else {
+                document.getElementById('login-error').style.display='block';
+            }
+        }
+        function showSub(){
+            document.getElementById('view-login').style.display='none';
+            document.getElementById('view-sub').style.display='block';
+        }
+        function showLogin(){
+            document.getElementById('view-login').style.display='block';
+            document.getElementById('view-sub').style.display='none';
+            document.getElementById('view-success').style.display='none';
+        }
+        function selAcc(el){
+            document.querySelectorAll('.acc-opt').forEach(o=>o.classList.remove('on'));
+            el.classList.add('on');
+        }
+        function submitSub(){
+            const tg=document.getElementById('sub-tg').value.trim();
+            const name=document.getElementById('sub-name').value.trim();
+            if(!tg||!name) return;
+            document.getElementById('view-sub').style.display='none';
+            document.getElementById('view-success').style.display='block';
+        }
+    </script>
+</body>
+</html>

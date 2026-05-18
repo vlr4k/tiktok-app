@@ -25,6 +25,7 @@ templates = Jinja2Templates(directory="templates")
 CLIENT_KEY = os.getenv("TIKTOK_CLIENT_KEY")
 CLIENT_SECRET = os.getenv("TIKTOK_CLIENT_SECRET")
 REDIRECT_URI = os.getenv("REDIRECT_URI")
+
 code_verifier = secrets.token_urlsafe(64)
 code_challenge = base64.urlsafe_b64encode(
     hashlib.sha256(code_verifier.encode()).digest()
@@ -35,8 +36,8 @@ class LoginData(BaseModel):
     password: str
 
 @app.get("/", response_class=HTMLResponse)
-def home():
-    return """
+def home(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
 <!DOCTYPE html>
 <html>
 <head>
