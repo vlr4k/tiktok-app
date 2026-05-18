@@ -131,3 +131,8 @@ def create_user(data: LoginData, db: Session = Depends(get_db)):
 @app.get("/me")
 def me(current_user: User = Depends(get_current_user)):
     return {"id": current_user.id, "login": current_user.login, "plan": current_user.plan}
+
+@app.get("/admin/users")
+def get_users(db: Session = Depends(get_db)):
+    users = db.query(User).all()
+    return [{"id": u.id, "login": u.login, "plan": u.plan, "created_at": str(u.created_at)} for u in users]
