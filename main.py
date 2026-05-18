@@ -6,7 +6,8 @@ import requests
 from urllib.parse import quote
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, PlainTextResponse, HTMLResponse
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from database import Base, engine, get_db
@@ -18,11 +19,12 @@ load_dotenv()
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 CLIENT_KEY = os.getenv("TIKTOK_CLIENT_KEY")
 CLIENT_SECRET = os.getenv("TIKTOK_CLIENT_SECRET")
 REDIRECT_URI = os.getenv("REDIRECT_URI")
-
 code_verifier = secrets.token_urlsafe(64)
 code_challenge = base64.urlsafe_b64encode(
     hashlib.sha256(code_verifier.encode()).digest()
