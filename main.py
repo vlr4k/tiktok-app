@@ -39,40 +39,6 @@ class LoginData(BaseModel):
 def home(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
-@app.get("/dashboard", response_class=HTMLResponse)
-def dashboard():
-    return """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>TZ Post — Dashboard</title>
-    <meta charset="utf-8">
-    <style>
-        body{background:#111113;color:#ccc;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px}
-        h1{color:#fff;font-size:20px}
-        .btn{background:#7c7cff;color:#fff;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:13px}
-        .info{background:#141416;border:0.5px solid #222;border-radius:8px;padding:16px;font-size:13px;min-width:300px;line-height:2}
-    </style>
-</head>
-<body>
-    <h1>TZ Post Dashboard</h1>
-    <div class="info" id="user-info">Loading...</div>
-    <button class="btn" onclick="logout()">Logout</button>
-    <script>
-        const token=localStorage.getItem('token');
-        if(!token) window.location='/';
-        fetch('/me',{headers:{'Authorization':'Bearer '+token}})
-            .then(r=>r.json())
-            .then(d=>{
-                if(d.detail){localStorage.removeItem('token');window.location='/';}
-                document.getElementById('user-info').innerHTML='Login: '+d.login+'<br>Plan: '+d.plan;
-            });
-        function logout(){localStorage.removeItem('token');window.location='/';}
-    </script>
-</body>
-</html>
-"""
-
 @app.post("/login")
 def login(data: LoginData, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.login == data.login).first()
