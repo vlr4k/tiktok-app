@@ -117,8 +117,12 @@ def tiktok_verify_privacy(filename: str):
         return PlainTextResponse("tiktok-developers-site-verification=dddvj5kJujUzUnaDntntoQfkFRSYyPMG")
     return PlainTextResponse("Not Found", status_code=404)
 
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard(request: Request):
+    return templates.TemplateResponse(request, "dashboard.html")
+
 @app.get("/{filename}")
 def tiktok_verify_root(filename: str):
     if filename == "tiktokT1AhM3o4jpObfsp9fVqEQj0OTJFQ47AV.txt":
         return PlainTextResponse("tiktok-developers-site-verification=T1AhM3o4jpObfsp9fVqEQj0OTJFQ47AV")
-    return PlainTextResponse("Not Found", status_code=404)
+    return HTMLResponse(status_code=404)
