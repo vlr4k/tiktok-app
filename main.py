@@ -36,8 +36,8 @@ class LoginData(BaseModel):
     password: str
 
 @app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+async def home(request: Request):
+    return templates.TemplateResponse(request, "login.html")
 
 @app.post("/login")
 def login(data: LoginData, db: Session = Depends(get_db)):
