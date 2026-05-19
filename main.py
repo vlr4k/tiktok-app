@@ -137,6 +137,32 @@ async def analytics_page(request: Request):
 async def accounts_page(request: Request):
     return templates.TemplateResponse(request, "accounts.html")
 
+from fastapi import UploadFile, File
+from storage import upload_file
+import uuid
+
+@app.post("/api/upload-video")
+async def upload_video(
+    file: UploadFile = File(...),
+    description: str = "",
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    content = await file.read()
+    ext = file.filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    upload_file(content, filename, file.content_type)
+    video = Video(
+        user_id=current_user.id,
+        title=file.filename,
+        description=description,
+        status="draft",
+        is_mass=False
+    )
+    db.add(video)
+    db.commit()
+    return {"message": "Video uploaded", "filename": filename, "video_id": video.id}
+
 @app.get("/{filename}")
 def tiktok_verify_root(filename: str):
     if filename == "tiktokT1AhM3o4jpObfsp9fVqEQj0OTJFQ47AV.txt":
