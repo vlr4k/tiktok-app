@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TZ Post — Accounts</title>
+    <meta charset="utf-8">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#0e0e10;font-family:Arial,sans-serif;color:#e8e6e0;display:flex;height:100vh;overflow:hidden}
+        .sidebar{width:220px;background:#141416;border-right:0.5px solid #2a2a2e;padding:20px 0;display:flex;flex-direction:column;flex-shrink:0}
+        .logo{padding:0 20px 20px;border-bottom:0.5px solid #2a2a2e;margin-bottom:16px;font-size:18px;font-weight:700;color:#fff}
+        .nav-section{padding:0 12px}
+        .nav-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:6px;margin-top:8px}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:13px;color:#888;cursor:pointer;margin-bottom:2px;text-decoration:none}
+        .nav-item:hover{background:#1e1e22;color:#ccc}
+        .nav-item.active{background:#1c1c3a;color:#7c7cff}
+        .sidebar-bottom{margin-top:auto;padding:16px 12px 0;border-top:0.5px solid #2a2a2e}
+        .user-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px}
+        .user-avatar{width:28px;height:28px;border-radius:50%;background:#1c1c3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#7c7cff}
+        .user-name{font-size:12px;color:#aaa}
+        .user-plan{font-size:10px;color:#555}
+        .logout-btn{background:none;border:0.5px solid #2a2a2e;color:#666;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;margin-left:auto}
+        .logout-btn:hover{border-color:#ff4455;color:#ff4455}
+        .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:0.5px solid #1e1e22}
+        .page-title{font-size:16px;font-weight:600;color:#fff}
+        .page-sub{font-size:12px;color:#555;margin-top:2px}
+        .connect-btn{background:#7c7cff;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
+        .content{flex:1;padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+        .acc-card{background:#141416;border:0.5px solid #1e1e22;border-radius:10px;padding:16px;display:flex;align-items:center;gap:16px;transition:border-color 0.15s}
+        .acc-card:hover{border-color:#2a2a2e}
+        .acc-card.disconnected{opacity:0.6}
+        .av-circle{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+        .av1{background:#1c1c3a;color:#7c7cff}
+        .av2{background:#0d2b1e;color:#4caf82}
+        .av3{background:#2b1a0d;color:#e8944a}
+        .av4{background:#2a1a2a;color:#cc7cff}
+        .acc-info{flex:1;min-width:0}
+        .acc-name{font-size:13px;font-weight:600;color:#ccc}
+        .acc-handle{font-size:11px;color:#555;margin-top:2px}
+        .acc-stats{display:flex;gap:16px;margin-top:10px}
+        .acc-stat{display:flex;flex-direction:column;gap:2px}
+        .stat-n{font-size:12px;font-weight:600;color:#aaa}
+        .stat-l{font-size:10px;color:#444}
+        .acc-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+        .status-active{background:#0d2b1e;color:#4caf82;font-size:11px;padding:3px 10px;border-radius:6px;font-weight:500}
+        .status-disc{background:#1e1e1e;color:#555;font-size:11px;padding:3px 10px;border-radius:6px;font-weight:500}
+        .acc-actions{display:flex;gap:6px}
+        .act-btn{background:#0e0e10;border:0.5px solid #1e1e22;border-radius:6px;padding:5px 10px;font-size:11px;color:#666;cursor:pointer;font-family:Arial;transition:all 0.15s}
+        .act-btn:hover{border-color:#333;color:#aaa}
+        .act-btn.danger:hover{border-color:#ff4455;color:#ff4455}
+        .connect-card{background:#0e0e10;border:0.5px dashed #2a2a2e;border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all 0.2s}
+        .connect-card:hover{border-color:#7c7cff;background:#0e0e18}
+        .connect-icon{font-size:32px;margin-bottom:10px}
+        .connect-t{font-size:13px;color:#444;font-weight:500}
+        .connect-card:hover .connect-t{color:#7c7cff}
+        .connect-s{font-size:11px;color:#333;margin-top:4px}
+        .limit-wrap{background:#1a1a1e;border-radius:4px;height:4px;margin-top:8px;overflow:hidden}
+        .limit-fill{height:100%;border-radius:4px;background:#7c7cff;width:75%}
+        .limit-note{font-size:11px;color:#444;margin-top:6px}
+        .limit-note span{color:#7c7cff;cursor:pointer}
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">TZ Post</div>
+        <div class="nav-section">
+            <div class="nav-label">Main</div>
+            <a class="nav-item" href="/dashboard">⬛ Dashboard</a>
+            <a class="nav-item" href="/schedule">📅 Schedule</a>
+            <a class="nav-item" href="/upload">⬆️ Upload</a>
+            <a class="nav-item" href="/analytics">📊 Analytics</a>
+            <div class="nav-label">Account</div>
+            <a class="nav-item active" href="/accounts">🎵 TikTok Accounts</a>
+        </div>
+        <div class="sidebar-bottom">
+            <div class="user-row">
+                <div class="user-avatar" id="user-initials">?</div>
+                <div><div class="user-name" id="user-login">...</div><div class="user-plan" id="user-plan">...</div></div>
+                <button class="logout-btn" onclick="logout()">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div>
+                <div class="page-title">TikTok accounts</div>
+                <div class="page-sub">Manage connected accounts</div>
+            </div>
+            <button class="connect-btn" onclick="window.location='/tiktok-auth'">+ Connect account</button>
+        </div>
+        <div class="content">
+            <div class="acc-card">
+                <div class="av-circle av1">M1</div>
+                <div class="acc-info">
+                    <div class="acc-name">myaccount1</div>
+                    <div class="acc-handle">@myaccount1</div>
+                    <div class="acc-stats">
+                        <div class="acc-stat"><div class="stat-n">128K</div><div class="stat-l">Followers</div></div>
+                        <div class="acc-stat"><div class="stat-n">34</div><div class="stat-l">Videos</div></div>
+                        <div class="acc-stat"><div class="stat-n">98K</div><div class="stat-l">Views</div></div>
+                    </div>
+                </div>
+                <div class="acc-right">
+                    <div class="status-active">● Active</div>
+                    <div class="acc-actions">
+                        <button class="act-btn">↻ Refresh</button>
+                        <button class="act-btn danger">✕ Disconnect</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="acc-card">
+                <div class="av-circle av2">BR</div>
+                <div class="acc-info">
+                    <div class="acc-name">brand_account</div>
+                    <div class="acc-handle">@brand_acc</div>
+                    <div class="acc-stats">
+                        <div class="acc-stat"><div class="stat-n">45K</div><div class="stat-l">Followers</div></div>
+                        <div class="acc-stat"><div class="stat-n">11</div><div class="stat-l">Videos</div></div>
+                        <div class="acc-stat"><div class="stat-n">82K</div><div class="stat-l">Views</div></div>
+                    </div>
+                </div>
+                <div class="acc-right">
+                    <div class="status-active">● Active</div>
+                    <div class="acc-actions">
+                        <button class="act-btn">↻ Refresh</button>
+                        <button class="act-btn danger">✕ Disconnect</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="acc-card">
+                <div class="av-circle av3">TV</div>
+                <div class="acc-info">
+                    <div class="acc-name">travel_vlogs</div>
+                    <div class="acc-handle">@travel_vlogs</div>
+                    <div class="acc-stats">
+                        <div class="acc-stat"><div class="stat-n">89K</div><div class="stat-l">Followers</div></div>
+                        <div class="acc-stat"><div class="stat-n">9</div><div class="stat-l">Videos</div></div>
+                        <div class="acc-stat"><div class="stat-n">68K</div><div class="stat-l">Views</div></div>
+                    </div>
+                </div>
+                <div class="acc-right">
+                    <div class="status-active">● Active</div>
+                    <div class="acc-actions">
+                        <button class="act-btn">↻ Refresh</button>
+                        <button class="act-btn danger">✕ Disconnect</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connect-card" onclick="window.location='/tiktok-auth'">
+                <div class="connect-icon">🎵</div>
+                <div class="connect-t">Connect new TikTok account</div>
+                <div class="connect-s">Authorize via TikTok OAuth</div>
+            </div>
+
+            <div>
+                <div class="limit-wrap"><div class="limit-fill"></div></div>
+                <div class="limit-note">3 of 4 accounts used — <span>upgrade to Pro</span> for unlimited</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if(!token) window.location = '/';
+        fetch('/me', {headers: {'Authorization': 'Bearer ' + token}})
+            .then(r => r.json())
+            .then(d => {
+                if(d.detail){localStorage.removeItem('token');window.location='/';}
+                document.getElementById('user-login').textContent = d.login;
+                document.getElementById('user-plan').textContent = d.plan + ' plan';
+                document.getElementById('user-initials').textContent = d.login.slice(0,2).toUpperCase();
+            });
+        function logout(){localStorage.removeItem('token');window.location='/';}
+    </script>
+</body>
+</html>
