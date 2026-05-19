@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TZ Post — Schedule</title>
+    <meta charset="utf-8">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#0e0e10;font-family:Arial,sans-serif;color:#e8e6e0;display:flex;height:100vh;overflow:hidden}
+        .sidebar{width:220px;background:#141416;border-right:0.5px solid #2a2a2e;padding:20px 0;display:flex;flex-direction:column;flex-shrink:0}
+        .logo{padding:0 20px 20px;border-bottom:0.5px solid #2a2a2e;margin-bottom:16px;font-size:18px;font-weight:700;color:#fff}
+        .nav-section{padding:0 12px}
+        .nav-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:6px;margin-top:8px}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:13px;color:#888;cursor:pointer;margin-bottom:2px;text-decoration:none}
+        .nav-item:hover{background:#1e1e22;color:#ccc}
+        .nav-item.active{background:#1c1c3a;color:#7c7cff}
+        .sidebar-bottom{margin-top:auto;padding:16px 12px 0;border-top:0.5px solid #2a2a2e}
+        .user-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px}
+        .user-avatar{width:28px;height:28px;border-radius:50%;background:#1c1c3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#7c7cff}
+        .user-name{font-size:12px;color:#aaa}
+        .user-plan{font-size:10px;color:#555}
+        .logout-btn{background:none;border:0.5px solid #2a2a2e;color:#666;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;margin-left:auto}
+        .logout-btn:hover{border-color:#ff4455;color:#ff4455}
+        .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:0.5px solid #1e1e22}
+        .page-title{font-size:16px;font-weight:600;color:#fff}
+        .page-sub{font-size:12px;color:#555;margin-top:2px}
+        .add-btn{background:#7c7cff;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
+        .content{flex:1;padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+        .filters{display:flex;align-items:center;gap:8px}
+        .search-inp{background:#0e0e10;border:0.5px solid #1e1e22;border-radius:7px;padding:7px 11px;font-size:12px;color:#ddd;outline:none;font-family:Arial;width:180px}
+        .search-inp:focus{border-color:#7c7cff}
+        .search-inp::placeholder{color:#333}
+        .filter-btn{background:#0e0e10;border:0.5px solid #1e1e22;border-radius:7px;padding:6px 12px;font-size:11px;color:#555;cursor:pointer;font-family:Arial;transition:all 0.15s}
+        .filter-btn:hover{color:#aaa;border-color:#333}
+        .filter-btn.on{background:#1a1a3a;border-color:#7c7cff;color:#7c7cff}
+        .day-group{display:flex;flex-direction:column;gap:6px}
+        .day-label{font-size:11px;color:#444;text-transform:uppercase;letter-spacing:0.8px;padding:0 2px;margin-bottom:2px}
+        .video-card{background:#141416;border:0.5px solid #1e1e22;border-radius:9px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:all 0.15s}
+        .video-card:hover{border-color:#2a2a2e;background:#161618}
+        .vthumb{width:38px;height:38px;border-radius:6px;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+        .vinfo{flex:1;min-width:0}
+        .vname{font-size:12px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+        .vmeta{display:flex;align-items:center;gap:8px;margin-top:3px}
+        .vacc{font-size:11px;color:#555}
+        .vtime{font-size:11px;color:#444}
+        .vstatus{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:500;flex-shrink:0}
+        .s-sched{background:#1a1a3a;color:#7c7cff}
+        .s-posted{background:#0d2b1e;color:#4caf82}
+        .s-draft{background:#1e1e1e;color:#555}
+        .s-mass{background:#2a1a3a;color:#b07cff}
+        .vviews{font-size:11px;color:#444;min-width:40px;text-align:right;flex-shrink:0}
+        .vactions{display:flex;gap:4px;flex-shrink:0}
+        .vact-btn{background:none;border:none;color:#444;font-size:13px;cursor:pointer;padding:4px 6px;border-radius:5px}
+        .vact-btn:hover{background:#1e1e22;color:#aaa}
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">TZ Post</div>
+        <div class="nav-section">
+            <div class="nav-label">Main</div>
+            <a class="nav-item" href="/dashboard">⬛ Dashboard</a>
+            <a class="nav-item active" href="/schedule">📅 Schedule</a>
+            <a class="nav-item" href="/upload">⬆️ Upload</a>
+            <a class="nav-item" href="/analytics">📊 Analytics</a>
+            <div class="nav-label">Account</div>
+            <a class="nav-item" href="/accounts">🎵 TikTok Accounts</a>
+        </div>
+        <div class="sidebar-bottom">
+            <div class="user-row">
+                <div class="user-avatar" id="user-initials">?</div>
+                <div><div class="user-name" id="user-login">...</div><div class="user-plan" id="user-plan">...</div></div>
+                <button class="logout-btn" onclick="logout()">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div>
+                <div class="page-title">Schedule</div>
+                <div class="page-sub">All planned publications</div>
+            </div>
+            <button class="add-btn" onclick="window.location='/upload'">+ Add video</button>
+        </div>
+        <div class="content">
+            <div class="filters">
+                <input class="search-inp" id="search-inp" placeholder="Search..." oninput="render()">
+                <button class="filter-btn on" onclick="setFilter('all',this)">All</button>
+                <button class="filter-btn" onclick="setFilter('scheduled',this)">Scheduled</button>
+                <button class="filter-btn" onclick="setFilter('posted',this)">Posted</button>
+                <button class="filter-btn" onclick="setFilter('draft',this)">Draft</button>
+            </div>
+            <div id="list-wrap"></div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if(!token) window.location = '/';
+        fetch('/me', {headers: {'Authorization': 'Bearer ' + token}})
+            .then(r => r.json())
+            .then(d => {
+                if(d.detail){localStorage.removeItem('token');window.location='/';}
+                document.getElementById('user-login').textContent = d.login;
+                document.getElementById('user-plan').textContent = d.plan + ' plan';
+                document.getElementById('user-initials').textContent = d.login.slice(0,2).toUpperCase();
+            });
+        function logout(){localStorage.removeItem('token');window.location='/';}
+
+        let filter = 'all';
+        const videos = [
+            {name:'Morning routine vlog #12',acc:'@myaccount1',date:'2026-05-19',time:'18:00',status:'scheduled',views:null,mass:false},
+            {name:'Travel highlights summer',acc:'@travel_vlogs',date:'2026-05-19',time:'21:00',status:'scheduled',views:null,mass:true},
+            {name:'Product review unboxing',acc:'@brand_acc',date:'2026-05-18',time:'15:30',status:'posted',views:'14.2K',mass:false},
+            {name:'Behind the scenes edit',acc:'@myaccount1',date:'2026-05-18',time:'09:00',status:'draft',views:null,mass:false},
+            {name:'Street food Tokyo vlog',acc:'@travel_vlogs',date:'2026-05-17',time:'12:00',status:'posted',views:'9.8K',mass:true},
+            {name:'Brand collab unboxing',acc:'@brand_acc',date:'2026-05-16',time:'14:00',status:'posted',views:'21.4K',mass:false},
+        ];
+
+        function setFilter(f, el){
+            filter = f;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('on'));
+            el.classList.add('on');
+            render();
+        }
+
+        function render(){
+            const q = document.getElementById('search-inp').value.toLowerCase();
+            let list = videos.filter(v => {
+                if(filter !== 'all' && v.status !== filter) return false;
+                if(q && !v.name.toLowerCase().includes(q) && !v.acc.toLowerCase().includes(q)) return false;
+                return true;
+            });
+            const groups = {};
+            list.forEach(v => { if(!groups[v.date]) groups[v.date]=[]; groups[v.date].push(v); });
+            const today = '2026-05-19', yesterday = '2026-05-18';
+            const wrap = document.getElementById('list-wrap');
+            if(!list.length){ wrap.innerHTML = '<div style="text-align:center;padding:40px;color:#333">No videos found</div>'; return; }
+            wrap.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a)).map(date => {
+                const label = date===today ? 'Today' : date===yesterday ? 'Yesterday' : new Date(date).toLocaleDateString('en-US',{month:'long',day:'numeric'});
+                const cards = groups[date].map(v => {
+                    const sc = v.status==='scheduled'?'s-sched':v.status==='posted'?'s-posted':'s-draft';
+                    const st = v.status==='scheduled'?'Scheduled':v.status==='posted'?'Posted':'Draft';
+                    const mass = v.mass ? '<span class="vstatus s-mass">Mass</span>' : '';
+                    return `<div class="video-card">
+                        <div class="vthumb">🎬</div>
+                        <div class="vinfo">
+                            <div class="vname">${v.name}</div>
+                            <div class="vmeta"><span class="vacc">${v.acc}</span><span class="vtime">· ${v.time}</span></div>
+                        </div>
+                        ${mass}
+                        <span class="vstatus ${sc}">${st}</span>
+                        <div class="vviews">${v.views||'—'}</div>
+                        <div class="vactions">
+                            <button class="vact-btn" title="Edit">✏️</button>
+                            <button class="vact-btn" title="Delete">🗑️</button>
+                        </div>
+                    </div>`;
+                }).join('');
+                return `<div class="day-group"><div class="day-label">${label}</div>${cards}</div>`;
+            }).join('');
+        }
+        render();
+    </script>
+</body>
+</html>
