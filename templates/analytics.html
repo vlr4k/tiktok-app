@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TZ Post — Analytics</title>
+    <meta charset="utf-8">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#0e0e10;font-family:Arial,sans-serif;color:#e8e6e0;display:flex;height:100vh;overflow:hidden}
+        .sidebar{width:220px;background:#141416;border-right:0.5px solid #2a2a2e;padding:20px 0;display:flex;flex-direction:column;flex-shrink:0}
+        .logo{padding:0 20px 20px;border-bottom:0.5px solid #2a2a2e;margin-bottom:16px;font-size:18px;font-weight:700;color:#fff}
+        .nav-section{padding:0 12px}
+        .nav-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:6px;margin-top:8px}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:13px;color:#888;cursor:pointer;margin-bottom:2px;text-decoration:none}
+        .nav-item:hover{background:#1e1e22;color:#ccc}
+        .nav-item.active{background:#1c1c3a;color:#7c7cff}
+        .sidebar-bottom{margin-top:auto;padding:16px 12px 0;border-top:0.5px solid #2a2a2e}
+        .user-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px}
+        .user-avatar{width:28px;height:28px;border-radius:50%;background:#1c1c3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#7c7cff}
+        .user-name{font-size:12px;color:#aaa}
+        .user-plan{font-size:10px;color:#555}
+        .logout-btn{background:none;border:0.5px solid #2a2a2e;color:#666;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;margin-left:auto}
+        .logout-btn:hover{border-color:#ff4455;color:#ff4455}
+        .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:0.5px solid #1e1e22}
+        .page-title{font-size:16px;font-weight:600;color:#fff}
+        .page-sub{font-size:12px;color:#555;margin-top:2px}
+        .content{flex:1;padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+        .period-row{display:flex;gap:6px;align-items:center}
+        .period-btn{background:#0e0e10;border:0.5px solid #1e1e22;border-radius:6px;padding:5px 12px;font-size:11px;color:#555;cursor:pointer;font-family:Arial;transition:all 0.15s}
+        .period-btn:hover{color:#aaa;border-color:#333}
+        .period-btn.on{background:#1a1a3a;border-color:#7c7cff;color:#7c7cff}
+        .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+        .stat-card{background:#141416;border:0.5px solid #1e1e22;border-radius:9px;padding:14px}
+        .stat-lbl{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+        .stat-val{font-size:22px;font-weight:600;color:#fff}
+        .stat-chg{font-size:10px;margin-top:4px}
+        .up{color:#4caf82}
+        .down{color:#ff4455}
+        .table-card{background:#141416;border:0.5px solid #1e1e22;border-radius:9px;overflow:hidden}
+        .table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:0.5px solid #1e1e22}
+        .table-title{font-size:13px;font-weight:600;color:#aaa}
+        .sort-row{display:flex;gap:4px}
+        .sort-btn{background:none;border:0.5px solid #1e1e22;border-radius:5px;padding:3px 8px;font-size:10px;color:#555;cursor:pointer;font-family:Arial;transition:all 0.15s}
+        .sort-btn:hover{color:#aaa}
+        .sort-btn.on{background:#1a1a3a;border-color:#7c7cff;color:#7c7cff}
+        table{width:100%;border-collapse:collapse;table-layout:fixed}
+        th{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:0.5px;padding:10px 16px;text-align:left;border-bottom:0.5px solid #1a1a1e;font-weight:500}
+        th.r{text-align:right}
+        td{padding:10px 16px;border-bottom:0.5px solid #141416;font-size:12px;color:#aaa;vertical-align:middle}
+        td.r{text-align:right}
+        tr:last-child td{border-bottom:none}
+        tr:hover td{background:#161618}
+        .vname-cell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ccc}
+        .acc-badge{font-size:10px;color:#7c7cff;background:#1a1a3a;padding:2px 7px;border-radius:5px}
+        .views-val{color:#fff;font-weight:600}
+        .chg-up{color:#4caf82}
+        .chg-down{color:#ff4455}
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .card{background:#141416;border:0.5px solid #1e1e22;border-radius:9px;padding:14px}
+        .card-title{font-size:12px;font-weight:600;color:#aaa;margin-bottom:12px}
+        .video-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid #141416}
+        .video-row:last-child{border-bottom:none}
+        .vrank{font-size:11px;color:#333;min-width:16px;text-align:center}
+        .vtitle{font-size:11px;color:#ccc;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .vbar-wrap{width:50px;height:4px;background:#1a1a1e;border-radius:2px}
+        .vbar-fill{height:100%;border-radius:2px;background:#7c7cff}
+        .vviews{font-size:11px;color:#7c7cff;min-width:36px;text-align:right}
+        .acc-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid #141416}
+        .acc-row:last-child{border-bottom:none}
+        .a-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+        .av1{background:#1c1c3a;color:#7c7cff}
+        .av2{background:#0d2b1e;color:#4caf82}
+        .av3{background:#2b1a0d;color:#e8944a}
+        .a-name{font-size:11px;color:#ccc;flex:1}
+        .a-views{font-size:12px;font-weight:600;color:#ccc;text-align:right}
+        .a-sub{font-size:10px;color:#444;text-align:right;margin-top:1px}
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">TZ Post</div>
+        <div class="nav-section">
+            <div class="nav-label">Main</div>
+            <a class="nav-item" href="/dashboard">⬛ Dashboard</a>
+            <a class="nav-item" href="/schedule">📅 Schedule</a>
+            <a class="nav-item" href="/upload">⬆️ Upload</a>
+            <a class="nav-item active" href="/analytics">📊 Analytics</a>
+            <div class="nav-label">Account</div>
+            <a class="nav-item" href="/accounts">🎵 TikTok Accounts</a>
+        </div>
+        <div class="sidebar-bottom">
+            <div class="user-row">
+                <div class="user-avatar" id="user-initials">?</div>
+                <div><div class="user-name" id="user-login">...</div><div class="user-plan" id="user-plan">...</div></div>
+                <button class="logout-btn" onclick="logout()">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div>
+                <div class="page-title">Analytics</div>
+                <div class="page-sub">Views and performance</div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="period-row">
+                <button class="period-btn" onclick="setPeriod('7',this)">7 days</button>
+                <button class="period-btn on" onclick="setPeriod('30',this)">30 days</button>
+                <button class="period-btn" onclick="setPeriod('90',this)">90 days</button>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-lbl">Total views</div><div class="stat-val" id="s1">248K</div><div class="stat-chg up">↑ +12.4%</div></div>
+                <div class="stat-card"><div class="stat-lbl">Videos posted</div><div class="stat-val" id="s2">34</div><div class="stat-chg up">↑ +5 this week</div></div>
+                <div class="stat-card"><div class="stat-lbl">Avg. views</div><div class="stat-val" id="s3">7.3K</div><div class="stat-chg down">↓ -3.1%</div></div>
+                <div class="stat-card"><div class="stat-lbl">Likes</div><div class="stat-val" id="s4">18.4K</div><div class="stat-chg up">↑ +8.7%</div></div>
+            </div>
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">All videos</div>
+                    <div class="sort-row">
+                        <button class="sort-btn on" onclick="setSort('views',this)">Views</button>
+                        <button class="sort-btn" onclick="setSort('likes',this)">Likes</button>
+                        <button class="sort-btn" onclick="setSort('date',this)">Date</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:36%">Video</th>
+                            <th style="width:18%">Account</th>
+                            <th class="r" style="width:12%">Views</th>
+                            <th class="r" style="width:12%">Likes</th>
+                            <th class="r" style="width:12%">Change</th>
+                            <th class="r" style="width:10%">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl-body"></tbody>
+                </table>
+            </div>
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-title">Top videos</div>
+                    <div id="top-videos"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">By account</div>
+                    <div id="acc-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if(!token) window.location = '/';
+        fetch('/me', {headers: {'Authorization': 'Bearer ' + token}})
+            .then(r => r.json())
+            .then(d => {
+                if(d.detail){localStorage.removeItem('token');window.location='/';}
+                document.getElementById('user-login').textContent = d.login;
+                document.getElementById('user-plan').textContent = d.plan + ' plan';
+                document.getElementById('user-initials').textContent = d.login.slice(0,2).toUpperCase();
+            });
+        function logout(){localStorage.removeItem('token');window.location='/';}
+
+        const periods = {
+            '7':{s1:'61K',s2:8,s3:'7.6K',s4:'4.2K'},
+            '30':{s1:'248K',s2:34,s3:'7.3K',s4:'18.4K'},
+            '90':{s1:'710K',s2:97,s3:'7.3K',s4:'52K'}
+        };
+        const rows = [
+            {name:'Brand collab unboxing',acc:'@brand_acc',views:21400,likes:1820,chg:+18.2,date:'May 15'},
+            {name:'Product review unboxing',acc:'@brand_acc',views:14200,likes:980,chg:+5.4,date:'May 18'},
+            {name:'Street food Tokyo vlog',acc:'@travel_vlogs',views:9800,likes:760,chg:-2.1,date:'May 17'},
+            {name:'Morning routine vlog #11',acc:'@myaccount1',views:6100,likes:510,chg:+1.8,date:'May 16'},
+            {name:'Morning routine vlog #12',acc:'@myaccount1',views:3200,likes:290,chg:+3.2,date:'May 19'},
+        ];
+        const topVideos = [
+            {name:'Brand collab unboxing',views:'21.4K',pct:100},
+            {name:'Product review unboxing',views:'14.2K',pct:66},
+            {name:'Street food Tokyo vlog',views:'9.8K',pct:46},
+            {name:'Morning routine #11',views:'6.1K',pct:29},
+            {name:'Morning routine #12',views:'3.2K',pct:15},
+        ];
+        const accounts = [
+            {cls:'av1',name:'@myaccount1',views:'98K',posts:'14 videos'},
+            {cls:'av2',name:'@brand_acc',views:'82K',posts:'11 videos'},
+            {cls:'av3',name:'@travel_vlogs',views:'68K',posts:'9 videos'},
+        ];
+        let sortBy = 'views';
+
+        function fmt(n){return n>=1000?(n/1000).toFixed(1)+'K':n}
+        function setPeriod(p, el){
+            document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('on'));
+            el.classList.add('on');
+            const d = periods[p];
+            document.getElementById('s1').textContent = d.s1;
+            document.getElementById('s2').textContent = d.s2;
+            document.getElementById('s3').textContent = d.s3;
+            document.getElementById('s4').textContent = d.s4;
+        }
+        function setSort(s, el){
+            sortBy = s;
+            document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('on'));
+            el.classList.add('on');
+            render();
+        }
+        function render(){
+            const sorted = [...rows].sort((a,b) => sortBy==='views'?b.views-a.views:sortBy==='likes'?b.likes-a.likes:0);
+            document.getElementById('tbl-body').innerHTML = sorted.map(r => `
+                <tr>
+                    <td class="vname-cell">${r.name}</td>
+                    <td><span class="acc-badge">${r.acc}</span></td>
+                    <td class="r views-val">${fmt(r.views)}</td>
+                    <td class="r">${fmt(r.likes)}</td>
+                    <td class="r ${r.chg>=0?'chg-up':'chg-down'}">${r.chg>=0?'+':''}${r.chg}%</td>
+                    <td class="r" style="color:#444;font-size:11px">${r.date}</td>
+                </tr>`).join('');
+            document.getElementById('top-videos').innerHTML = topVideos.map((v,i) => `
+                <div class="video-row">
+                    <div class="vrank">${i+1}</div>
+                    <div class="vtitle">${v.name}</div>
+                    <div class="vbar-wrap"><div class="vbar-fill" style="width:${v.pct}%"></div></div>
+                    <div class="vviews">${v.views}</div>
+                </div>`).join('');
+            document.getElementById('acc-list').innerHTML = accounts.map(a => `
+                <div class="acc-row">
+                    <div class="a-av ${a.cls}">${a.name.slice(1,3).toUpperCase()}</div>
+                    <div class="a-name">${a.name}</div>
+                    <div><div class="a-views">${a.views}</div><div class="a-sub">${a.posts}</div></div>
+                </div>`).join('');
+        }
+        render();
+    </script>
+</body>
+</html>

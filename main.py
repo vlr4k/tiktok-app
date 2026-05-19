@@ -129,6 +129,10 @@ async def upload_page(request: Request):
 async def schedule_page(request: Request):
     return templates.TemplateResponse(request, "schedule.html")
 
+@app.get("/analytics", response_class=HTMLResponse)
+async def analytics_page(request: Request):
+    return templates.TemplateResponse(request, "analytics.html")
+
 @app.get("/{filename}")
 def tiktok_verify_root(filename: str):
     if filename == "tiktokT1AhM3o4jpObfsp9fVqEQj0OTJFQ47AV.txt":
