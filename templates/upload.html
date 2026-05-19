@@ -132,9 +132,6 @@
                         <input class="tag-input" id="tag-inp" placeholder="+ hashtag" onkeydown="addTag(event)">
                     </div>
                     <div style="flex:1"></div>
-                    <button class="btn-full btn-mass" style="margin-top:12px;border:0.5px solid #2a2a2e" onclick="window.location='/mass-publish'">
-                        📦 Mass publish →
-                    </button>
                 </div>
             </div>
             <div class="right-col">
@@ -172,6 +169,9 @@
                 </div>
                 <button class="btn-full" onclick="handlePublish()">
                     ➤ Publish →
+                </button>
+                <button class="btn-full btn-mass" style="margin-top:0;border:0.5px solid #2a2a2e" onclick="window.location='/mass-publish'">
+                    📦 Mass publish →
                 </button>
             </div>
         </div>
