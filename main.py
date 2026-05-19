@@ -121,6 +121,10 @@ def tiktok_verify_privacy(filename: str):
 async def dashboard(request: Request):
     return templates.TemplateResponse(request, "dashboard.html")
 
+@app.get("/upload", response_class=HTMLResponse)
+async def upload_page(request: Request):
+    return templates.TemplateResponse(request, "upload.html")
+
 @app.get("/{filename}")
 def tiktok_verify_root(filename: str):
     if filename == "tiktokT1AhM3o4jpObfsp9fVqEQj0OTJFQ47AV.txt":

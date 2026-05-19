@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TZ Post — Upload</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#0e0e10;font-family:Arial,sans-serif;color:#e8e6e0;display:flex;height:100vh;overflow:hidden}
+        .sidebar{width:220px;background:#141416;border-right:0.5px solid #2a2a2e;padding:20px 0;display:flex;flex-direction:column;flex-shrink:0}
+        .logo{padding:0 20px 20px;border-bottom:0.5px solid #2a2a2e;margin-bottom:16px;font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+        .nav-section{padding:0 12px;margin-bottom:8px}
+        .nav-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:6px}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:13px;color:#888;cursor:pointer;margin-bottom:2px;text-decoration:none}
+        .nav-item:hover{background:#1e1e22;color:#ccc}
+        .nav-item.active{background:#1c1c3a;color:#7c7cff}
+        .sidebar-bottom{margin-top:auto;padding:16px 12px 0;border-top:0.5px solid #2a2a2e}
+        .user-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer}
+        .user-avatar{width:28px;height:28px;border-radius:50%;background:#1c1c3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#7c7cff}
+        .user-name{font-size:12px;color:#aaa}
+        .user-plan{font-size:10px;color:#555}
+        .logout-btn{background:none;border:0.5px solid #2a2a2e;color:#666;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;margin-left:auto}
+        .logout-btn:hover{border-color:#ff4455;color:#ff4455}
+        .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        .topbar{display:flex;align-items:center;padding:16px 24px;border-bottom:0.5px solid #1e1e22}
+        .page-title{font-size:16px;font-weight:600;color:#fff}
+        .page-sub{font-size:12px;color:#555;margin-top:2px}
+        .content{flex:1;padding:20px 24px;overflow-y:auto;display:flex;gap:16px}
+        .left-col{flex:1;display:flex;flex-direction:column;gap:14px;min-width:0}
+        .right-col{width:240px;display:flex;flex-direction:column;gap:14px;flex-shrink:0}
+        .card{background:#141416;border:0.5px solid #222226;border-radius:10px;padding:16px}
+        .card-title{font-size:13px;font-weight:600;color:#aaa;margin-bottom:12px}
+        .drop-zone{border:0.5px dashed #2a2a2e;border-radius:8px;padding:32px 16px;text-align:center;cursor:pointer;transition:all 0.2s;background:#0e0e10}
+        .drop-zone:hover{border-color:#7c7cff;background:#0e0e18}
+        .drop-zone.has-file{border-color:#4caf82;border-style:solid}
+        .dz-icon{font-size:32px;margin-bottom:8px}
+        .dz-text{font-size:13px;color:#555}
+        .dz-text span{color:#7c7cff;cursor:pointer}
+        .dz-sub{font-size:11px;color:#333;margin-top:4px}
+        .file-info{display:flex;align-items:center;gap:8px;background:#0d1f0d;border:0.5px solid #1a3a1a;border-radius:7px;padding:8px 10px;margin-top:8px}
+        .file-name{font-size:12px;color:#4caf82;flex:1}
+        .file-size{font-size:11px;color:#2a6a2a}
+        .remove-file{color:#444;cursor:pointer;font-size:16px;background:none;border:none}
+        .remove-file:hover{color:#ff4455}
+        label.lbl{font-size:11px;color:#666;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
+        input.inp, textarea.inp, select.inp{width:100%;background:#0e0e10;border:0.5px solid #2a2a2e;border-radius:7px;padding:9px 11px;font-size:12px;color:#ddd;outline:none;font-family:Arial;transition:border-color 0.15s}
+        input.inp:focus, textarea.inp:focus, select.inp:focus{border-color:#7c7cff}
+        input.inp::placeholder, textarea.inp::placeholder{color:#2a2a2a}
+        textarea.inp{resize:vertical;min-height:80px;line-height:1.5}
+        select.inp{cursor:pointer}
+        .acc-list{display:flex;flex-direction:column;gap:6px}
+        .acc-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;border:0.5px solid #1e1e22;background:#0e0e10;cursor:pointer;transition:all 0.15s}
+        .acc-item:hover{border-color:#333}
+        .acc-item.on{border-color:#7c7cff;background:#1a1a3a}
+        .acc-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+        .av1{background:#1c1c3a;color:#7c7cff}
+        .av2{background:#0d2b1e;color:#4caf82}
+        .av3{background:#2b1a0d;color:#e8944a}
+        .acc-nm{font-size:12px;color:#aaa;flex:1}
+        .acc-ck{font-size:12px;color:#7c7cff;display:none}
+        .acc-item.on .acc-ck{display:block}
+        .pub-opts{display:flex;flex-direction:column;gap:5px}
+        .pub-opt{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;border:0.5px solid #1e1e22;background:#0e0e10;cursor:pointer;font-size:12px;color:#666;transition:all 0.15s}
+        .pub-opt:hover{border-color:#333;color:#aaa}
+        .pub-opt.on{border-color:#7c7cff;background:#1a1a3a;color:#7c7cff}
+        .sched-inp{margin-top:8px;display:none}
+        .sched-inp.on{display:block}
+        .btn-full{width:100%;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.15s;border:none;background:#7c7cff;color:#fff;font-family:Arial}
+        .btn-full:hover{opacity:0.9}
+        .btn-mass{background:#0e0e10;color:#ccc;border:0.5px solid #2a2a2e !important;border:none}
+        .btn-mass:hover{border-color:#7c7cff !important;color:#7c7cff}
+        .tags-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+        .tag{background:#1a1a2e;color:#7c7cff;font-size:11px;padding:3px 8px;border-radius:5px;display:flex;align-items:center;gap:4px}
+        .tag-remove{cursor:pointer;color:#555;background:none;border:none;font-size:12px}
+        .tag-remove:hover{color:#ff4455}
+        .tag-input{background:none;border:none;outline:none;font-size:12px;color:#ddd;font-family:Arial;width:80px}
+        .tag-input::placeholder{color:#2a2a2a}
+        .field{margin-bottom:12px}
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">TZ Post</div>
+        <div class="nav-section">
+            <div class="nav-label">Main</div>
+            <a class="nav-item" href="/dashboard">⬛ Dashboard</a>
+            <a class="nav-item" href="/schedule">📅 Schedule</a>
+            <a class="nav-item active" href="/upload">⬆️ Upload</a>
+            <a class="nav-item" href="/analytics">📊 Analytics</a>
+            <div class="nav-label" style="margin-top:8px">Account</div>
+            <a class="nav-item" href="/accounts">🎵 TikTok Accounts</a>
+        </div>
+        <div class="sidebar-bottom">
+            <div class="user-row">
+                <div class="user-avatar" id="user-initials">?</div>
+                <div><div class="user-name" id="user-login">...</div><div class="user-plan" id="user-plan">...</div></div>
+                <button class="logout-btn" onclick="logout()">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div>
+                <div class="page-title">Upload video</div>
+                <div class="page-sub">Add video to queue</div>
+            </div>
+        </div>
+        <div class="content" id="view-upload">
+            <div class="left-col">
+                <div class="card">
+                    <div class="card-title">Video file</div>
+                    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-inp').click()">
+                        <div class="dz-icon">☁️</div>
+                        <div class="dz-text">Drop file here or <span>browse</span></div>
+                        <div class="dz-sub">MP4, MOV · up to 500MB</div>
+                    </div>
+                    <input type="file" id="file-inp" accept="video/*" style="display:none" onchange="handleFile(this)">
+                    <div id="file-info" style="display:none" class="file-info">
+                        <span>🎬</span>
+                        <div class="file-name" id="file-name"></div>
+                        <div class="file-size" id="file-size"></div>
+                        <button class="remove-file" onclick="removeFile()">✕</button>
+                    </div>
+                </div>
+                <div class="card" style="flex:1;display:flex;flex-direction:column">
+                    <div class="card-title">Description</div>
+                    <div class="field">
+                        <textarea class="inp" id="desc" placeholder="Write a description..."></textarea>
+                    </div>
+                    <div class="tags-row" id="tags-row">
+                        <input class="tag-input" id="tag-inp" placeholder="+ hashtag" onkeydown="addTag(event)">
+                    </div>
+                    <div style="flex:1"></div>
+                    <button class="btn-full btn-mass" style="margin-top:12px;border:0.5px solid #2a2a2e" onclick="window.location='/mass-publish'">
+                        📦 Mass publish →
+                    </button>
+                </div>
+            </div>
+            <div class="right-col">
+                <div class="card">
+                    <div class="card-title">TikTok account</div>
+                    <div class="acc-list" id="acc-list">
+                        <div class="acc-item on" onclick="this.classList.toggle('on')">
+                            <div class="acc-av av1">M1</div>
+                            <div class="acc-nm">@myaccount1</div>
+                            <span class="acc-ck">✓</span>
+                        </div>
+                        <div class="acc-item" onclick="this.classList.toggle('on')">
+                            <div class="acc-av av2">BR</div>
+                            <div class="acc-nm">@brand_acc</div>
+                            <span class="acc-ck">✓</span>
+                        </div>
+                        <div class="acc-item" onclick="this.classList.toggle('on')">
+                            <div class="acc-av av3">TV</div>
+                            <div class="acc-nm">@travel_vlogs</div>
+                            <span class="acc-ck">✓</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Publish</div>
+                    <div class="pub-opts">
+                        <div class="pub-opt on" onclick="selPub(this,'now')">▶ Publish now</div>
+                        <div class="pub-opt" onclick="selPub(this,'draft')">📄 Save as draft</div>
+                        <div class="pub-opt" onclick="selPub(this,'schedule')">📅 Schedule</div>
+                    </div>
+                    <div class="sched-inp" id="sched-inp">
+                        <label class="lbl" style="margin-top:10px">Date & time</label>
+                        <input class="inp" type="datetime-local">
+                    </div>
+                </div>
+                <button class="btn-full" onclick="handlePublish()">
+                    ➤ Publish →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if(!token) window.location = '/';
+        fetch('/me', {headers: {'Authorization': 'Bearer ' + token}})
+            .then(r => r.json())
+            .then(d => {
+                if(d.detail){localStorage.removeItem('token');window.location='/';}
+                document.getElementById('user-login').textContent = d.login;
+                document.getElementById('user-plan').textContent = d.plan + ' plan';
+                document.getElementById('user-initials').textContent = d.login.slice(0,2).toUpperCase();
+            });
+        function logout(){localStorage.removeItem('token');window.location='/';}
+        function handleFile(inp){
+            if(!inp.files[0]) return;
+            const f = inp.files[0];
+            const sz = f.size > 1048576 ? (f.size/1048576).toFixed(1)+' MB' : (f.size/1024).toFixed(0)+' KB';
+            document.getElementById('file-name').textContent = f.name;
+            document.getElementById('file-size').textContent = sz;
+            document.getElementById('file-info').style.display = 'flex';
+            document.getElementById('drop-zone').classList.add('has-file');
+        }
+        function removeFile(){
+            document.getElementById('file-inp').value = '';
+            document.getElementById('file-info').style.display = 'none';
+            document.getElementById('drop-zone').classList.remove('has-file');
+        }
+        function selPub(el, type){
+            document.querySelectorAll('.pub-opt').forEach(o => o.classList.remove('on'));
+            el.classList.add('on');
+            document.getElementById('sched-inp').className = 'sched-inp' + (type==='schedule' ? ' on' : '');
+        }
+        function addTag(e){
+            if(e.key !== 'Enter' && e.key !== ',') return;
+            e.preventDefault();
+            const val = document.getElementById('tag-inp').value.trim().replace(/^#+/,'');
+            if(!val) return;
+            const tag = document.createElement('div');
+            tag.className = 'tag';
+            tag.innerHTML = '#'+val+' <button class="tag-remove" onclick="this.parentElement.remove()">✕</button>';
+            document.getElementById('tags-row').insertBefore(tag, document.getElementById('tag-inp'));
+            document.getElementById('tag-inp').value = '';
+        }
+        function handlePublish(){
+            alert('Publishing feature coming soon!');
+        }
+    </script>
+</body>
+</html>
