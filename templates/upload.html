@@ -219,9 +219,35 @@
             document.getElementById('tags-row').insertBefore(tag, document.getElementById('tag-inp'));
             document.getElementById('tag-inp').value = '';
         }
-        function handlePublish(){
-            alert('Publishing feature coming soon!');
+async function handlePublish(){
+    const fileInp = document.getElementById('file-inp');
+    if(!fileInp.files[0]){
+        alert('Please select a video file first');
+        return;
+    }
+    const desc = document.getElementById('desc').value;
+    const formData = new FormData();
+    formData.append('file', fileInp.files[0]);
+    formData.append('description', desc);
+    const btn = document.querySelector('.btn-full:last-child');
+    btn.textContent = 'Uploading...';
+    btn.disabled = true;
+    try {
+        const res = await fetch('/api/upload-video', {
+            method: 'POST',
+            headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')},
+            body: formData
+        });
+        const data = await res.json();
+        if(res.ok){
+            alert('Video uploaded successfully!');
+            window.location = '/schedule';
+        } else {
+            alert('Error: ' + data.detail);
         }
-    </script>
-</body>
-</html>
+    } catch(e) {
+        alert('Upload failed: ' + e.message);
+    }
+    btn.textContent = '➤ Publish →';
+    btn.disabled = false;
+}
