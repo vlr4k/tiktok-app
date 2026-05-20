@@ -16,7 +16,10 @@ from auth import hash_password, verify_password, create_token, get_current_user
 from pydantic import BaseModel
 
 load_dotenv()
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"Database not available: {e}")
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
