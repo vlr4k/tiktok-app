@@ -1,27 +1,29 @@
-import boto3
+import httpx
 import os
-from botocore.config import Config
-
-def get_s3_client():
-    return boto3.client(
-        's3',
-        endpoint_url=os.getenv('R2_ENDPOINT'),
-        aws_access_key_id=os.getenv('R2_ACCESS_KEY_ID'),
-        aws_secret_access_key=os.getenv('R2_SECRET_ACCESS_KEY'),
-        config=Config(signature_version='s3v4'),
-        region_name='auto'
-    )
+import hmac
+import hashlib
+import datetime
 
 def upload_file(file_bytes: bytes, filename: str, content_type: str) -> str:
-    client = get_s3_client()
+    endpoint = os.getenv('R2_ENDPOINT')
     bucket = os.getenv('R2_BUCKET')
-    client.put_object(
-        Bucket=bucket,
-        Key=filename,
-        Body=file_bytes,
-        ContentType=content_type
-    )
+    access_key = os.getenv('R2_ACCESS_KEY_ID')
+    secret_key = os.getenv('R2_SECRET_ACCESS_KEY')
+    
+    url = f"{endpoint}/{bucket}/{filename}"
+    
+    now = datetime.datetime.utcnow()
+    date_stamp = now.strftime('%Y%m%d')
+    amz_date = now.strftime('%Y%m%dT%H%M%SZ')
+    
+    with httpx.Client() as client:
+        response = client.put(
+            url,
+            content=file_bytes,
+            headers={
+                'Content-Type': content_type,
+                'x-amz-date': amz_date,
+            },
+            auth=None
+        )
     return filename
-
-def get_file_url(filename: str) -> str:
-    return f"{os.getenv('R2_ENDPOINT')}/{os.getenv('R2_BUCKET')}/{filename}"
