@@ -110,12 +110,17 @@
                     <div class="storage-text"><span>3.5 GB</span> of 10 GB used</div>
                 </div>
                 <div class="filters">
-                    <button class="filter-btn on" onclick="setFilter('all',this)">All</button>
-                    <button class="filter-btn" onclick="setFilter('published',this)">Published</button>
-                    <button class="filter-btn" onclick="setFilter('scheduled',this)">Scheduled</button>
-                    <button class="filter-btn" onclick="setFilter('draft',this)">Draft</button>
-                    <input class="search-inp" placeholder="Search videos..." oninput="render()" id="search-inp">
-                </div>
+    <button class="filter-btn on" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('published',this)">Published</button>
+    <button class="filter-btn" onclick="setFilter('scheduled',this)">Scheduled</button>
+    <button class="filter-btn" onclick="setFilter('draft',this)">Draft</button>
+    <div style="width:0.5px;background:#1e1e22;height:20px;margin:0 4px"></div>
+    <button class="filter-btn on-acc" onclick="setAcc('all',this)">All accounts</button>
+    <button class="filter-btn on-acc" onclick="setAcc('@myaccount1',this)">@myaccount1</button>
+    <button class="filter-btn on-acc" onclick="setAcc('@brand_acc',this)">@brand_acc</button>
+    <button class="filter-btn on-acc" onclick="setAcc('@travel_vlogs',this)">@travel_vlogs</button>
+    <input class="search-inp" placeholder="Search videos..." oninput="render()" id="search-inp">
+</div>
                 <div id="video-list"></div>
             </div>
             <div class="detail-panel hidden" id="detail-panel">
@@ -143,96 +148,105 @@
         </div>
     </div>
 
-    <script>
-        const token = localStorage.getItem('token');
-        if(!token) window.location = '/';
-        fetch('/me', {headers: {'Authorization': 'Bearer ' + token}})
-            .then(r => r.json())
-            .then(d => {
-                if(d.detail){localStorage.removeItem('token');window.location='/';}
-                document.getElementById('user-login').textContent = d.login;
-                document.getElementById('user-plan').textContent = d.plan + ' plan';
-                document.getElementById('user-initials').textContent = d.login.slice(0,2).toUpperCase();
-            });
-        function logout(){localStorage.removeItem('token');window.location='/';}
+<script>
+    const token = localStorage.getItem('token');
+    if(!token) window.location = '/';
+    fetch('/me', {headers: {'Authorization': 'Bearer ' + token}})
+        .then(r => r.json())
+        .then(d => {
+            if(d.detail){localStorage.removeItem('token');window.location='/';}
+            document.getElementById('user-login').textContent = d.login;
+            document.getElementById('user-plan').textContent = d.plan + ' plan';
+            document.getElementById('user-initials').textContent = d.login.slice(0,2).toUpperCase();
+        });
+    function logout(){localStorage.removeItem('token');window.location='/';}
 
-        let filter = 'all';
-        let selectedId = null;
+    let filter = 'all';
+    let accFilter = 'all';
+    let selectedId = null;
 
-        const videos = [
-            {id:1,title:'Morning routine vlog #12',size:'248 MB',date:'May 19, 2026',status:'published',accounts:['@myaccount1'],desc:'My daily morning routine...'},
-            {id:2,title:'Travel highlights summer',size:'512 MB',date:'May 18, 2026',status:'scheduled',accounts:['@travel_vlogs'],desc:'Best moments from summer trip'},
-            {id:3,title:'Product review unboxing',size:'189 MB',date:'May 17, 2026',status:'published',accounts:['@brand_acc','@myaccount1'],desc:'Unboxing the new product'},
-            {id:4,title:'Behind the scenes edit',size:'94 MB',date:'May 17, 2026',status:'draft',accounts:[],desc:'BTS footage'},
-            {id:5,title:'Street food Tokyo vlog',size:'421 MB',date:'May 16, 2026',status:'published',accounts:['@travel_vlogs'],desc:'Amazing street food in Tokyo'},
-            {id:6,title:'Brand collab unboxing',size:'156 MB',date:'May 15, 2026',status:'published',accounts:['@brand_acc'],desc:'Brand collaboration video'},
-            {id:7,title:'Morning routine vlog #11',size:'231 MB',date:'May 14, 2026',status:'published',accounts:['@myaccount1'],desc:'Morning routine part 11'},
-            {id:8,title:'Kyoto temples walk',size:'387 MB',date:'May 13, 2026',status:'draft',accounts:[],desc:'Walking through Kyoto temples'},
-        ];
+    const videos = [
+        {id:1,title:'Morning routine vlog #12',size:'248 MB',date:'May 19, 2026',status:'published',accounts:['@myaccount1'],desc:'My daily morning routine...'},
+        {id:2,title:'Travel highlights summer',size:'512 MB',date:'May 18, 2026',status:'scheduled',accounts:['@travel_vlogs'],desc:'Best moments from summer trip'},
+        {id:3,title:'Product review unboxing',size:'189 MB',date:'May 17, 2026',status:'published',accounts:['@brand_acc','@myaccount1'],desc:'Unboxing the new product'},
+        {id:4,title:'Behind the scenes edit',size:'94 MB',date:'May 17, 2026',status:'draft',accounts:[],desc:'BTS footage'},
+        {id:5,title:'Street food Tokyo vlog',size:'421 MB',date:'May 16, 2026',status:'published',accounts:['@travel_vlogs'],desc:'Amazing street food in Tokyo'},
+        {id:6,title:'Brand collab unboxing',size:'156 MB',date:'May 15, 2026',status:'published',accounts:['@brand_acc'],desc:'Brand collaboration video'},
+        {id:7,title:'Morning routine vlog #11',size:'231 MB',date:'May 14, 2026',status:'published',accounts:['@myaccount1'],desc:'Morning routine part 11'},
+        {id:8,title:'Kyoto temples walk',size:'387 MB',date:'May 13, 2026',status:'draft',accounts:[],desc:'Walking through Kyoto temples'},
+    ];
 
-        function setFilter(f, el){
-            filter = f;
-            document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on'));
-            el.classList.add('on');
-            render();
-        }
+    function setFilter(f, el){
+        filter = f;
+        document.querySelectorAll('.filter-btn:not(.acc-btn)').forEach(b=>b.classList.remove('on'));
+        el.classList.add('on');
+        render();
+    }
 
-        function render(){
-            const q = document.getElementById('search-inp').value.toLowerCase();
-            let list = videos.filter(v => {
-                if(filter !== 'all' && v.status !== filter) return false;
-                if(q && !v.title.toLowerCase().includes(q)) return false;
-                return true;
-            });
-            const wrap = document.getElementById('video-list');
-            if(!list.length){wrap.innerHTML='<div class="empty">No videos found</div>';return;}
-            wrap.innerHTML = list.map(v => {
-                const sc = v.status==='published'?'s-published':v.status==='scheduled'?'s-scheduled':'s-draft';
-                const st = v.status==='published'?'Published':v.status==='scheduled'?'Scheduled':'Draft';
-                return `<div class="video-card ${selectedId===v.id?'selected':''}" onclick="selectVideo(${v.id})">
-                    <div class="video-card-inner">
-                        <div class="video-thumb">🎬</div>
-                        <div class="video-info">
-                            <div class="video-title">${v.title}</div>
-                            <div class="video-meta">
-                                <span class="video-size">${v.size}</span>
-                                <span class="video-date">${v.date}</span>
-                            </div>
-                        </div>
-                        <span class="video-status ${sc}">${st}</span>
-                        <div class="video-actions" onclick="event.stopPropagation()">
-                            <button class="v-btn primary">Publish</button>
-                            <button class="v-btn danger">🗑</button>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
+    function setAcc(a, el){
+        accFilter = a;
+        document.querySelectorAll('.acc-btn').forEach(b=>b.classList.remove('on'));
+        el.classList.add('on');
+        render();
+    }
 
-        function selectVideo(id){
-            selectedId = id;
-            const v = videos.find(x=>x.id===id);
-            if(!v) return;
-            render();
-            document.getElementById('detail-panel').classList.remove('hidden');
-            document.getElementById('d-title').textContent = v.title;
+    function render(){
+        const q = document.getElementById('search-inp').value.toLowerCase();
+        let list = videos.filter(v => {
+            if(filter !== 'all' && v.status !== filter) return false;
+            if(accFilter !== 'all' && !v.accounts.includes(accFilter)) return false;
+            if(q && !v.title.toLowerCase().includes(q)) return false;
+            return true;
+        });
+        const wrap = document.getElementById('video-list');
+        if(!list.length){wrap.innerHTML='<div class="empty">No videos found</div>';return;}
+        wrap.innerHTML = list.map(v => {
             const sc = v.status==='published'?'s-published':v.status==='scheduled'?'s-scheduled':'s-draft';
             const st = v.status==='published'?'Published':v.status==='scheduled'?'Scheduled':'Draft';
-            document.getElementById('d-status').innerHTML = `<span class="video-status ${sc}">${st}</span>`;
-            document.getElementById('d-accounts').innerHTML = v.accounts.length
-                ? v.accounts.map(a=>`<span class="acc-tag"><span class="acc-dot-sm"></span>${a}</span>`).join('')
-                : '<span style="color:#444;font-size:12px">Not published yet</span>';
-            document.getElementById('d-info').textContent = `${v.size} · ${v.date}`;
-            document.getElementById('d-desc').textContent = v.desc || '—';
-        }
+            return `<div class="video-card ${selectedId===v.id?'selected':''}" onclick="selectVideo(${v.id})">
+                <div class="video-card-inner">
+                    <div class="video-thumb">🎬</div>
+                    <div class="video-info">
+                        <div class="video-title">${v.title}</div>
+                        <div class="video-meta">
+                            <span class="video-size">${v.size}</span>
+                            <span class="video-date">${v.date}</span>
+                        </div>
+                    </div>
+                    <span class="video-status ${sc}">${st}</span>
+                    <div class="video-actions" onclick="event.stopPropagation()">
+                        <button class="v-btn primary">Publish</button>
+                        <button class="v-btn danger">🗑</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
 
-        function closeDetail(){
-            selectedId = null;
-            document.getElementById('detail-panel').classList.add('hidden');
-            render();
-        }
-
+    function selectVideo(id){
+        selectedId = id;
+        const v = videos.find(x=>x.id===id);
+        if(!v) return;
         render();
-    </script>
+        document.getElementById('detail-panel').classList.remove('hidden');
+        document.getElementById('d-title').textContent = v.title;
+        const sc = v.status==='published'?'s-published':v.status==='scheduled'?'s-scheduled':'s-draft';
+        const st = v.status==='published'?'Published':v.status==='scheduled'?'Scheduled':'Draft';
+        document.getElementById('d-status').innerHTML = `<span class="video-status ${sc}">${st}</span>`;
+        document.getElementById('d-accounts').innerHTML = v.accounts.length
+            ? v.accounts.map(a=>`<span class="acc-tag"><span class="acc-dot-sm"></span>${a}</span>`).join('')
+            : '<span style="color:#444;font-size:12px">Not published yet</span>';
+        document.getElementById('d-info').textContent = `${v.size} · ${v.date}`;
+        document.getElementById('d-desc').textContent = v.desc || '—';
+    }
+
+    function closeDetail(){
+        selectedId = null;
+        document.getElementById('detail-panel').classList.add('hidden');
+        render();
+    }
+
+    render();
+</script>
 </body>
 </html>
