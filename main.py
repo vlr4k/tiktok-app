@@ -140,6 +140,10 @@ async def analytics_page(request: Request):
 async def accounts_page(request: Request):
     return templates.TemplateResponse(request, "accounts.html")
 
+@app.get("/storage", response_class=HTMLResponse)
+async def storage_page(request: Request):
+    return templates.TemplateResponse(request, "storage.html")
+
 from fastapi import UploadFile, File
 from storage import upload_file
 import uuid

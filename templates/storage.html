@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TZ Post — Cloud Storage</title>
+    <meta charset="utf-8">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#0e0e10;font-family:Arial,sans-serif;color:#e8e6e0;display:flex;height:100vh;overflow:hidden}
+        .sidebar{width:220px;background:#141416;border-right:0.5px solid #2a2a2e;padding:20px 0;display:flex;flex-direction:column;flex-shrink:0}
+        .logo{padding:0 20px 20px;border-bottom:0.5px solid #2a2a2e;margin-bottom:16px;font-size:18px;font-weight:700;color:#fff}
+        .nav-section{padding:0 12px}
+        .nav-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:6px;margin-top:8px}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:13px;color:#888;cursor:pointer;margin-bottom:2px;text-decoration:none}
+        .nav-item:hover{background:#1e1e22;color:#ccc}
+        .nav-item.active{background:#1c1c3a;color:#7c7cff}
+        .sidebar-bottom{margin-top:auto;padding:16px 12px 0;border-top:0.5px solid #2a2a2e}
+        .user-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px}
+        .user-avatar{width:28px;height:28px;border-radius:50%;background:#1c1c3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#7c7cff}
+        .user-name{font-size:12px;color:#aaa}
+        .user-plan{font-size:10px;color:#555}
+        .logout-btn{background:none;border:0.5px solid #2a2a2e;color:#666;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;margin-left:auto}
+        .logout-btn:hover{border-color:#ff4455;color:#ff4455}
+        .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:0.5px solid #1e1e22}
+        .page-title{font-size:16px;font-weight:600;color:#fff}
+        .page-sub{font-size:12px;color:#555;margin-top:2px}
+        .upload-btn{background:#7c7cff;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
+        .content{flex:1;display:flex;overflow:hidden}
+        .video-list{flex:1;padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+        .filters{display:flex;gap:6px;align-items:center}
+        .filter-btn{background:#0e0e10;border:0.5px solid #1e1e22;border-radius:6px;padding:5px 12px;font-size:11px;color:#555;cursor:pointer;font-family:Arial;transition:all 0.15s}
+        .filter-btn:hover{color:#aaa;border-color:#333}
+        .filter-btn.on{background:#1a1a3a;border-color:#7c7cff;color:#7c7cff}
+        .search-inp{background:#0e0e10;border:0.5px solid #1e1e22;border-radius:7px;padding:6px 11px;font-size:12px;color:#ddd;outline:none;font-family:Arial;width:200px;margin-left:auto}
+        .search-inp:focus{border-color:#7c7cff}
+        .search-inp::placeholder{color:#333}
+        .storage-info{display:flex;align-items:center;gap:10px;background:#141416;border:0.5px solid #1e1e22;border-radius:9px;padding:12px 16px}
+        .storage-bar-wrap{flex:1;height:6px;background:#1a1a1e;border-radius:3px;overflow:hidden}
+        .storage-bar{height:100%;border-radius:3px;background:#7c7cff;width:35%}
+        .storage-text{font-size:11px;color:#555;white-space:nowrap}
+        .storage-text span{color:#ccc}
+        .video-card{background:#141416;border:0.5px solid #1e1e22;border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.15s}
+        .video-card:hover{border-color:#2a2a2e}
+        .video-card.selected{border-color:#7c7cff;background:#0e0e1a}
+        .video-card-inner{display:flex;align-items:center;gap:14px;padding:14px 16px}
+        .video-thumb{width:60px;height:44px;border-radius:6px;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+        .video-info{flex:1;min-width:0}
+        .video-title{font-size:13px;color:#ccc;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .video-meta{display:flex;align-items:center;gap:10px;margin-top:4px}
+        .video-size{font-size:11px;color:#444}
+        .video-date{font-size:11px;color:#444}
+        .video-status{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:500}
+        .s-published{background:#0d2b1e;color:#4caf82}
+        .s-draft{background:#1e1e1e;color:#555}
+        .s-scheduled{background:#1a1a3a;color:#7c7cff}
+        .video-actions{display:flex;gap:6px;flex-shrink:0}
+        .v-btn{background:#0e0e10;border:0.5px solid #1e1e22;border-radius:6px;padding:5px 10px;font-size:11px;color:#666;cursor:pointer;font-family:Arial;transition:all 0.15s}
+        .v-btn:hover{border-color:#333;color:#aaa}
+        .v-btn.primary{background:#7c7cff;color:#fff;border-color:#7c7cff}
+        .v-btn.danger:hover{border-color:#ff4455;color:#ff4455}
+        .detail-panel{width:300px;border-left:0.5px solid #1e1e22;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+        .detail-panel.hidden{display:none}
+        .detail-thumb{width:100%;height:140px;background:#1a1a2e;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:48px}
+        .detail-title{font-size:14px;font-weight:600;color:#fff}
+        .detail-section{display:flex;flex-direction:column;gap:8px}
+        .detail-label{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:0.5px}
+        .detail-value{font-size:12px;color:#aaa}
+        .acc-tag{display:inline-flex;align-items:center;gap:6px;background:#1a1a3a;border-radius:6px;padding:5px 10px;font-size:11px;color:#7c7cff;margin-right:5px;margin-bottom:5px}
+        .acc-dot-sm{width:5px;height:5px;border-radius:50%;background:#4caf82}
+        .close-detail{background:none;border:none;color:#444;cursor:pointer;font-size:16px;align-self:flex-end}
+        .close-detail:hover{color:#aaa}
+        .empty{text-align:center;padding:60px 20px;color:#333;font-size:13px}
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">TZ Post</div>
+        <div class="nav-section">
+            <div class="nav-label">Main</div>
+            <a class="nav-item" href="/dashboard">⬛ Dashboard</a>
+            <a class="nav-item" href="/schedule">📅 Schedule</a>
+            <a class="nav-item" href="/upload">⬆️ Upload</a>
+            <a class="nav-item" href="/analytics">📊 Analytics</a>
+            <a class="nav-item active" href="/storage">☁️ Cloud Storage</a>
+            <div class="nav-label">Account</div>
+            <a class="nav-item" href="/accounts">🎵 TikTok Accounts</a>
+        </div>
+        <div class="sidebar-bottom">
+            <div class="user-row">
+                <div class="user-avatar" id="user-initials">?</div>
+                <div><div class="user-name" id="user-login">...</div><div class="user-plan" id="user-plan">...</div></div>
+                <button class="logout-btn" onclick="logout()">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div>
+                <div class="page-title">Cloud Storage</div>
+                <div class="page-sub">Your uploaded videos</div>
+            </div>
+            <button class="upload-btn" onclick="window.location='/upload'">+ Upload video</button>
+        </div>
+        <div class="content">
+            <div class="video-list">
+                <div class="storage-info">
+                    <span style="font-size:16px">☁️</span>
+                    <div class="storage-bar-wrap"><div class="storage-bar"></div></div>
+                    <div class="storage-text"><span>3.5 GB</span> of 10 GB used</div>
+                </div>
+                <div class="filters">
+                    <button class="filter-btn on" onclick="setFilter('all',this)">All</button>
+                    <button class="filter-btn" onclick="setFilter('published',this)">Published</button>
+                    <button class="filter-btn" onclick="setFilter('scheduled',this)">Scheduled</button>
+                    <button class="filter-btn" onclick="setFilter('draft',this)">Draft</button>
+                    <input class="search-inp" placeholder="Search videos..." oninput="render()" id="search-inp">
+                </div>
+                <div id="video-list"></div>
+            </div>
+            <div class="detail-panel hidden" id="detail-panel">
+                <button class="close-detail" onclick="closeDetail()">✕</button>
+                <div class="detail-thumb" id="d-thumb">🎬</div>
+                <div class="detail-title" id="d-title">Video title</div>
+                <div class="detail-section">
+                    <div class="detail-label">Status</div>
+                    <div id="d-status"></div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Published on accounts</div>
+                    <div id="d-accounts"></div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">File info</div>
+                    <div class="detail-value" id="d-info"></div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Description</div>
+                    <div class="detail-value" id="d-desc"></div>
+                </div>
+                <button class="v-btn primary" style="width:100%" onclick="window.location='/upload'">Publish to TikTok →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if(!token) window.location = '/';
+        fetch('/me', {headers: {'Authorization': 'Bearer ' + token}})
+            .then(r => r.json())
+            .then(d => {
+                if(d.detail){localStorage.removeItem('token');window.location='/';}
+                document.getElementById('user-login').textContent = d.login;
+                document.getElementById('user-plan').textContent = d.plan + ' plan';
+                document.getElementById('user-initials').textContent = d.login.slice(0,2).toUpperCase();
+            });
+        function logout(){localStorage.removeItem('token');window.location='/';}
+
+        let filter = 'all';
+        let selectedId = null;
+
+        const videos = [
+            {id:1,title:'Morning routine vlog #12',size:'248 MB',date:'May 19, 2026',status:'published',accounts:['@myaccount1'],desc:'My daily morning routine...'},
+            {id:2,title:'Travel highlights summer',size:'512 MB',date:'May 18, 2026',status:'scheduled',accounts:['@travel_vlogs'],desc:'Best moments from summer trip'},
+            {id:3,title:'Product review unboxing',size:'189 MB',date:'May 17, 2026',status:'published',accounts:['@brand_acc','@myaccount1'],desc:'Unboxing the new product'},
+            {id:4,title:'Behind the scenes edit',size:'94 MB',date:'May 17, 2026',status:'draft',accounts:[],desc:'BTS footage'},
+            {id:5,title:'Street food Tokyo vlog',size:'421 MB',date:'May 16, 2026',status:'published',accounts:['@travel_vlogs'],desc:'Amazing street food in Tokyo'},
+            {id:6,title:'Brand collab unboxing',size:'156 MB',date:'May 15, 2026',status:'published',accounts:['@brand_acc'],desc:'Brand collaboration video'},
+            {id:7,title:'Morning routine vlog #11',size:'231 MB',date:'May 14, 2026',status:'published',accounts:['@myaccount1'],desc:'Morning routine part 11'},
+            {id:8,title:'Kyoto temples walk',size:'387 MB',date:'May 13, 2026',status:'draft',accounts:[],desc:'Walking through Kyoto temples'},
+        ];
+
+        function setFilter(f, el){
+            filter = f;
+            document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on'));
+            el.classList.add('on');
+            render();
+        }
+
+        function render(){
+            const q = document.getElementById('search-inp').value.toLowerCase();
+            let list = videos.filter(v => {
+                if(filter !== 'all' && v.status !== filter) return false;
+                if(q && !v.title.toLowerCase().includes(q)) return false;
+                return true;
+            });
+            const wrap = document.getElementById('video-list');
+            if(!list.length){wrap.innerHTML='<div class="empty">No videos found</div>';return;}
+            wrap.innerHTML = list.map(v => {
+                const sc = v.status==='published'?'s-published':v.status==='scheduled'?'s-scheduled':'s-draft';
+                const st = v.status==='published'?'Published':v.status==='scheduled'?'Scheduled':'Draft';
+                return `<div class="video-card ${selectedId===v.id?'selected':''}" onclick="selectVideo(${v.id})">
+                    <div class="video-card-inner">
+                        <div class="video-thumb">🎬</div>
+                        <div class="video-info">
+                            <div class="video-title">${v.title}</div>
+                            <div class="video-meta">
+                                <span class="video-size">${v.size}</span>
+                                <span class="video-date">${v.date}</span>
+                            </div>
+                        </div>
+                        <span class="video-status ${sc}">${st}</span>
+                        <div class="video-actions" onclick="event.stopPropagation()">
+                            <button class="v-btn primary">Publish</button>
+                            <button class="v-btn danger">🗑</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function selectVideo(id){
+            selectedId = id;
+            const v = videos.find(x=>x.id===id);
+            if(!v) return;
+            render();
+            document.getElementById('detail-panel').classList.remove('hidden');
+            document.getElementById('d-title').textContent = v.title;
+            const sc = v.status==='published'?'s-published':v.status==='scheduled'?'s-scheduled':'s-draft';
+            const st = v.status==='published'?'Published':v.status==='scheduled'?'Scheduled':'Draft';
+            document.getElementById('d-status').innerHTML = `<span class="video-status ${sc}">${st}</span>`;
+            document.getElementById('d-accounts').innerHTML = v.accounts.length
+                ? v.accounts.map(a=>`<span class="acc-tag"><span class="acc-dot-sm"></span>${a}</span>`).join('')
+                : '<span style="color:#444;font-size:12px">Not published yet</span>';
+            document.getElementById('d-info').textContent = `${v.size} · ${v.date}`;
+            document.getElementById('d-desc').textContent = v.desc || '—';
+        }
+
+        function closeDetail(){
+            selectedId = null;
+            document.getElementById('detail-panel').classList.add('hidden');
+            render();
+        }
+
+        render();
+    </script>
+</body>
+</html>
